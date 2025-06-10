@@ -1,4 +1,4 @@
-import { app, server } from '../server.mjs'
+import { app, server } from '../app.js'
 import { describe, test, expect, beforeAll, afterAll, vi } from 'vitest'
 import request from 'supertest'
 
