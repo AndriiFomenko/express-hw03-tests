@@ -1,0 +1,31 @@
+doctype html
+html(lang="uk")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Список користувачів - Express Сервер
+    link(rel="stylesheet", href="/css/styles.css")
+  body
+    .container
+      .card
+        .card-header
+          h1 👥 Користувачі
+          .badge= `Всього: ${users.length}`
+        .card-body
+          if users && users.length > 0
+            .users-list
+              each user in users
+                a.user-item(href=`/users/${user.id}`)
+                  .user-name= user.name
+                  .user-id ID: #{user.id}
+          else
+            .empty-state
+              h3 📭 Немає користувачів
+              p Список користувачів порожній
+          
+          .navigation
+            a.nav-link(href="/articles") 📚 Переглянути статті
+            a.nav-link(href="/") 🏠 На головну
+            
+    script.
+      console.log('PUG Template: Users page loaded with #{users.length} users'); 

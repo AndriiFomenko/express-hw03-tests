@@ -1,0 +1,32 @@
+doctype html
+html(lang="uk")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= `Користувач: ${user.name} - Express Сервер`
+    link(rel="stylesheet", href="/css/styles.css")
+  body
+    .container
+      .navigation
+        a.nav-link.back-link(href="/users") ← Назад до списку
+      
+      .detail-page
+        h1.detail-title 👤 Деталі користувача
+        
+        .detail-info
+          .detail-label Ім'я користувача:
+          .detail-value= user.name
+          
+          .detail-label Ідентифікатор:
+          .detail-value= user.id
+          
+          .detail-label Дата створення:
+          .detail-value= new Date().toLocaleString('uk-UA')
+        
+        .navigation
+          a.nav-link(href="/users") 👥 Всі користувачі
+          a.nav-link(href="/articles") 📚 Переглянути статті
+          a.nav-link(href="/") 🏠 На головну
+          
+    script.
+      console.log('PUG Template: User detail page loaded for user: #{user.name}'); 

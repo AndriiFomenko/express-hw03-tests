@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Список статей - Express Сервер</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h1>📚 Статті</h1>
+        <div class="badge">Всього: <%= articles.length %>
+        </div>
+      </div>
+      <div class="card-body">
+        <% if (articles && articles.length> 0) { %>
+          <div class="articles-list">
+            <% articles.forEach(article=> { %>
+              <a href="/articles/<%= article.id %>" class="article-item">
+                <div class="article-title">
+                  <%= article.title %>
+                </div>
+                <div class="article-id">ID: <%= article.id %>
+                </div>
+              </a>
+              <% }) %>
+          </div>
+          <% } else { %>
+            <div class="empty-state">
+              <h3>📭 Немає статей</h3>
+              <p>Список статей порожній</p>
+            </div>
+            <% } %>
+
+              <div class="navigation">
+                <a href="/users" class="nav-link">👥 Переглянути користувачів</a>
+                <a href="/" class="nav-link">🏠 На головну</a>
+              </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('EJS Template: Articles page loaded with <%= articles.length %> articles');
+  </script>
+</body>
+
+</html>

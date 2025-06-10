@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Стаття: <%= article.title %> - Express Сервер</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="navigation">
+      <a href="/articles" class="nav-link back-link">← Назад до списку</a>
+    </div>
+
+    <div class="detail-page">
+      <h1 class="detail-title">📖 Деталі статті</h1>
+
+      <div class="detail-info">
+        <div class="detail-label">Назва статті:</div>
+        <div class="detail-value">
+          <%= article.title %>
+        </div>
+
+        <div class="detail-label">Ідентифікатор:</div>
+        <div class="detail-value">
+          <%= article.id %>
+        </div>
+
+        <div class="detail-label">Дата створення:</div>
+        <div class="detail-value">
+          <%= new Date().toLocaleString('uk-UA') %>
+        </div>
+      </div>
+
+      <div class="navigation">
+        <a href="/articles" class="nav-link">📚 Всі статті</a>
+        <a href="/users" class="nav-link">👥 Переглянути користувачів</a>
+        <a href="/" class="nav-link">🏠 На головну</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('EJS Template: Article detail page loaded for article: <%= article.title %>');
+  </script>
+</body>
+
+</html>
