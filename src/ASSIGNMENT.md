@@ -1,254 +1,302 @@
-# Розширення існуючого Express сервера за допомогою мідлварів та шаблонізаторів
+# Інтеграція шаблонізаторів PUG та EJS у існуючий Express сервер
 
 **Складність**: Важке  
-**Базис**: Існуючий RESTful API сервер (всі базові тести пройдені)
+**Базис**: Повністю функціональний Express.js сервер з мідлварами (всі тести пройдені)
 
 ## Мета завдання
 
-Розширити існуючий функціональний Express.js сервер шляхом інтеграції системи мідлварів для логування, аутентифікації, валідації даних та управління правами доступу, а також додати підтримку шаблонізаторів PUG та EJS для створення HTML сторінок, зберігаючи сумісність з існуючими тестами.
+**Взяти існуючий функціональний Express.js сервер** (з мідлварами логування, аутентифікації, валідації та REST API) **та розширити його шаблонізаторами PUG і EJS** для створення сучасних HTML сторінок, зберігаючи повну сумісність з існуючими тестами.
+
+## Що вже реалізовано у базовій версії
+
+✅ **Express сервер з мідлварами**:
+
+- Логування запитів (`logRequests`)
+- Демонстраційна та строга аутентифікація (`demoAuth`, `strictAuth`)
+- Валідація даних (`validateUserData`, `validateArticleData`)
+- Контроль доступу (`demoArticleAccess`)
+- Перевірка існування ресурсів (`checkUserExists`, `checkArticleExists`)
+
+✅ **REST API**:
+
+- Повний CRUD для користувачів та статей
+- Обробка помилок та статус коди
+- 23 API тести - всі проходять успішно
+
+✅ **Демонстраційні маршрути**:
+
+- `/users/strict` та `/articles/strict` з обов'язковою аутентифікацією
 
 ## Нові вимоги для реалізації
 
 ### 1. Інтеграція шаблонізаторів
 
-#### 1.1 Використання PUG для користувачів
+#### 1.1 Налаштування PUG для користувачів
 
 - **Маршрути**: `/users` та `/users/:userId`
 - **Функціональність**:
-  - Відображення списку користувачів у вигляді карток
+  - Відображення списку користувачів у вигляді сучасних карток
   - Деталізована сторінка конкретного користувача
-  - Сучасна стилізація з CSS
-  - Навігація між сторінками
+  - Навігація між сторінками з красивими кнопками
 
-#### 1.2 Використання EJS для статей
+#### 1.2 Налаштування EJS для статей
 
 - **Маршрути**: `/articles` та `/articles/:articleId`
 - **Функціональність**:
   - Відображення списку статей у вигляді карток
   - Деталізована сторінка конкретної статті
-  - Сучасна стилізація з CSS
-  - Навігація між сторінками
+  - Інтуїтивна навігація з посиланнями
 
 #### 1.3 Умовне рендерування
 
-- **За замовчуванням**: JSON відповіді для API сумісності
-- **З заголовком `Accept: text/html`**: HTML рендеринг через шаблони
-- **Статичні файли**: CSS стилі доступні за `/css/styles.css`
+- **Ключова особливість**: Зберегти API функціональність
+- **Логіка**:
+  - `Accept: text/html` → HTML шаблон (PUG або EJS)
+  - `Accept: application/json` → JSON відповідь
+  - Без заголовка → JSON (зворотна сумісність з тестами)
 
-### 2. Система мідлварів (збережена з попереднього завдання)
+### 2. Технічна реалізація шаблонізаторів
 
-#### 2.1 Мідлвар логування (`logRequests`)
-
-- **Призначення**: Записує детальну інформацію про кожен HTTP запит
-- **Функціональність**:
-  - Логування дати/часу, HTTP методу, URL, IP адреси, User-Agent
-  - Для POST та PUT запитів додатково логує тіло запиту
-  - Застосовується глобально до всіх маршрутів
-
-#### 2.2 Мідлвари аутентифікації
-
-- **`demoAuth`**: Демонстраційний мідлвар аутентифікації
-- **`strictAuth`**: Строгий мідлвар аутентифікації (активується заголовком)
-
-#### 2.3 Мідлвари валідації даних
-
-- **`validateUserData`**: Розширена валідація користувачів
-- **`validateArticleData`**: Розширена валідація статей
-
-#### 2.4 Мідлвари управління доступом
-
-- **`demoArticleAccess`**: Контроль доступу до операцій зі статтями
-- **`checkUserExists` / `checkArticleExists`**: Перевірка існування ресурсів
-
-### 3. Структура маршрутів
-
-#### 3.1 HTML маршрути (з шаблонізаторами)
+#### 2.1 Конфігурація Express
 
 ```javascript
-// PUG для користувачів
-GET /users - Список користувачів (PUG)
-GET /users/:userId - Деталі користувача (PUG)
-
-// EJS для статей
-GET /articles - Список статей (EJS)
-GET /articles/:articleId - Деталі статті (EJS)
-```
-
-#### 3.2 API маршрути (JSON only)
-
-```javascript
-// API користувачів
-GET    /api/users - Список користувачів (JSON)
-POST   /api/users - Створення користувача
-GET    /api/users/:userId - Деталі користувача (JSON)
-PUT    /api/users/:userId - Оновлення користувача
-DELETE /api/users/:userId - Видалення користувача
-
-// API статей
-GET    /api/articles - Список статей (JSON)
-POST   /api/articles - Створення статті
-GET    /api/articles/:articleId - Деталі статті (JSON)
-PUT    /api/articles/:articleId - Оновлення статті
-DELETE /api/articles/:articleId - Видалення статті
-```
-
-#### 3.3 Зворотна сумісність
-
-```javascript
-// Оригінальні маршрути (без /api префікса) зберігаються для тестів
-POST   /users - Створення користувача (JSON)
-PUT    /users/:userId - Оновлення користувача (JSON)
-DELETE /users/:userId - Видалення користувача (JSON)
-
-POST   /articles - Створення статті (JSON)
-PUT    /articles/:articleId - Оновлення статті (JSON)
-DELETE /articles/:articleId - Видалення статті (JSON)
-```
-
-### 4. Технічна реалізація
-
-#### 4.1 Налаштування шаблонізаторів
-
-```javascript
-// PUG як основний view engine
+// Налаштування PUG як основний view engine
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'pug')
 
-// EJS як додатковий engine
-app.engine('ejs', require('ejs').renderFile)
+// Додавання EJS як другого engine
+import ejs from 'ejs'
+app.engine('ejs', ejs.renderFile)
 
-// Статичні файли
+// Статичні файли для CSS
 app.use(express.static(path.join(__dirname, 'public')))
 ```
 
-#### 4.2 Умовне рендерування
+#### 2.2 Модифікація існуючих маршрутів
 
 ```javascript
+// Приклад для користувачів
 app.get('/users', (req, res) => {
   const acceptHeader = req.headers.accept || ''
+  const allUsers = Array.from(users.entries()).map(([id, user]) => ({ id, ...user }))
 
   if (acceptHeader.includes('text/html')) {
-    // HTML рендеринг з PUG
-    const allUsers = Array.from(users.entries()).map(([id, user]) => ({ id, ...user }))
-    res.render('pug/users', { users: allUsers })
+    res.render('pug/users.pug', { users: allUsers }) // PUG шаблон
   } else {
-    // JSON відповідь для API
-    const allUsers = Array.from(users.entries()).map(([id, user]) => ({ id, ...user }))
-    res.status(200).json(allUsers)
+    res.status(200).json(allUsers) // Оригінальний JSON
+  }
+})
+
+// Приклад для статей
+app.get('/articles', (req, res) => {
+  const acceptHeader = req.headers.accept || ''
+  const allArticles = Array.from(articles.entries()).map(([id, article]) => ({ id, ...article }))
+
+  if (acceptHeader.includes('text/html')) {
+    res.render('ejs/articles.ejs', { articles: allArticles }) // EJS шаблон
+  } else {
+    res.status(200).json(allArticles) // Оригінальний JSON
   }
 })
 ```
 
-#### 4.3 Структура файлів
+### 3. Створення шаблонів
 
+#### 3.1 PUG шаблони (views/pug/)
+
+**users.pug** - список користувачів:
+
+```pug
+doctype html
+html(lang="uk")
+  head
+    title Список користувачів
+    link(rel="stylesheet", href="/css/styles.css")
+  body
+    .container
+      h1 👥 Користувачі
+      .users-list
+        each user in users
+          a.user-item(href=`/users/${user.id}`)
+            .user-name= user.name
+            .user-id ID: #{user.id}
 ```
-src/
-├── views/
-│   ├── pug/
-│   │   ├── users.pug
-│   │   └── user-detail.pug
-│   └── ejs/
-│       ├── articles.ejs
-│       └── article-detail.ejs
-├── public/
-│   └── css/
-│       └── styles.css
-├── __test__/
-│   ├── task1.test.js (оригінальні тести)
-│   └── templates.test.js (тести шаблонізаторів)
-└── server.mjs
+
+**user-detail.pug** - деталі користувача:
+
+```pug
+doctype html
+html(lang="uk")
+  head
+    title= `Користувач: ${user.name}`
+    link(rel="stylesheet", href="/css/styles.css")
+  body
+    .container
+      h1 👤 Деталі користувача
+      .detail-info
+        p Ім'я: #{user.name}
+        p ID: #{user.id}
+      a(href="/users") ← Назад до списку
 ```
 
-### 5. CSS стилізація
+#### 3.2 EJS шаблони (views/ejs/)
 
-#### 5.1 Сучасний дизайн
+**articles.ejs** - список статей:
 
-- **Градієнтні фони**: Linear градієнти для привабливого вигляду
-- **Картки**: Shadow effects та hover анімації
-- **Responsive дизайн**: Адаптивність для мобільних пристроїв
-- **Анімації**: Плавні переходи та transform ефекти
+```html
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <title>Список статей</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>📚 Статті</h1>
+      <div class="articles-list">
+        <% articles.forEach(article => { %>
+        <a href="/articles/<%= article.id %>" class="article-item">
+          <div class="article-title"><%= article.title %></div>
+          <div class="article-id">ID: <%= article.id %></div>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+  </body>
+</html>
+```
 
-#### 5.2 Основні компоненти
+### 4. CSS стилізація
 
-- **`.container`**: Основний контейнер з центруванням
-- **`.card`**: Картки для відображення списків
-- **`.detail-page`**: Сторінки деталей ресурсів
-- **`.navigation`**: Стилізовані навігаційні посилання
+#### 4.1 Мінімальні вимоги
 
-### 6. Тестування
+- **Створити CSS файл**: `public/css/styles.css`
+- **Підключити до шаблонів**: `<link rel="stylesheet" href="/css/styles.css">`
+- **Тести перевіряють**: наявність CSS файлу та його завантаження
+- **Дизайн**: будь-який сучасний стиль (детальні CSS класи не критичні для тестування)
 
-#### 6.1 Існуючі тести
+### 5. Додаткові API маршрути
 
-- **Всі оригінальні тести** повинні проходити без змін
-- **API функціональність** залишається незмінною
-- **Middleware поведінка** зберігається
+#### 5.1 Явні API ендпоінти
+
+Додати маршрути з префіксом `/api/` для явного JSON доступу:
+
+```javascript
+// API маршрути (завжди JSON)
+app.get('/api/users', (req, res) => {
+  /* JSON only */
+})
+app.get('/api/articles', (req, res) => {
+  /* JSON only */
+})
+// ... інші CRUD операції
+```
+
+### 6. Тестування нового функціоналу
+
+#### 6.1 Збереження існуючих тестів
+
+- **Важливо**: Всі 23 існуючі API тести повинні проходити без змін
+- **Зворотна сумісність**: JSON відповіді за замовчуванням
 
 #### 6.2 Нові тести шаблонізаторів
 
+Додати тестовий файл `templates.test.js`:
+
 ```javascript
 // Тестування PUG
-test('GET /users з Accept: text/html повертає PUG шаблон')
+test('GET /users з Accept: text/html повертає HTML з PUG')
 test('GET /users/:userId з Accept: text/html повертає PUG деталі')
 
 // Тестування EJS
-test('GET /articles з Accept: text/html повертає EJS шаблон')
+test('GET /articles з Accept: text/html повертає HTML з EJS')
 test('GET /articles/:articleId з Accept: text/html повертає EJS деталі')
 
 // Тестування зворотної сумісності
 test('GET /users без Accept заголовка повертає JSON')
 test('GET /articles з Accept: application/json повертає JSON')
+
+// Тестування статичних файлів
+test('GET /css/styles.css повертає CSS файл')
 ```
 
-### 7. Демонстрація функціональності
+### 7. Структура файлів
 
-#### 7.1 Браузерне тестування
-
-```bash
-# Відкрити у браузері
-http://localhost:3000/users     # PUG користувачі
-http://localhost:3000/articles  # EJS статті
+```
+src/
+├── views/                    # 🆕 Шаблони
+│   ├── pug/                 # 🆕 PUG шаблони
+│   │   ├── users.pug        # 🆕 Список користувачів
+│   │   └── user-detail.pug  # 🆕 Деталі користувача
+│   └── ejs/                 # 🆕 EJS шаблони
+│       ├── articles.ejs     # 🆕 Список статей
+│       └── article-detail.ejs # 🆕 Деталі статті
+├── public/                   # 🆕 Статичні файли
+│   └── css/
+│       └── styles.css       # 🆕 CSS стилі
+├── __test__/
+│   ├── task1.test.js        # ✅ Існуючі API тести
+│   └── templates.test.js    # 🆕 Тести шаблонізаторів
+├── server.mjs               # 🔄 Модифікований сервер
+└── ASSIGNMENT.md            # 🔄 Це завдання
 ```
 
-#### 7.2 API тестування
+### 8. Демонстрація результату
+
+#### 8.1 Браузерне тестування
 
 ```bash
-# JSON API
-curl -X GET http://localhost:3000/api/users
-curl -X GET http://localhost:3000/api/articles
+# Відкрити у браузері для перегляду HTML сторінок
+http://localhost:3000/users           # PUG список користувачів
+http://localhost:3000/users/test-user-1  # PUG деталі користувача
+http://localhost:3000/articles       # EJS список статей
+http://localhost:3000/articles/test-article-1  # EJS деталі статті
+```
 
-# HTML templates
+#### 8.2 API тестування (збережена функціональність)
+
+```bash
+# JSON API (як раніше)
+curl -X GET http://localhost:3000/users
+curl -X GET http://localhost:3000/articles
+
+# Явний JSON запит
+curl -H "Accept: application/json" http://localhost:3000/users
+
+# HTML шаблони
 curl -H "Accept: text/html" http://localhost:3000/users
 curl -H "Accept: text/html" http://localhost:3000/articles
 ```
 
-### 8. Важливі принципи реалізації
-
-#### 8.1 Збереження функціональності
-
-- **100% зворотна сумісність** з існуючими тестами
-- **API ендпоінти** працюють як раніше
-- **Middleware поведінка** незмінна
-
-#### 8.2 Розширюваність
-
-- **Модульна архітектура** шаблонізаторів
-- **Легке додавання** нових view engines
-- **Гнучка конфігурація** для різних типів контенту
-
-#### 8.3 UX/UI якість
-
-- **Сучасний дизайн** з CSS3 features
-- **Мобільна адаптивність**
-- **Інтуїтивна навігація** між сторінками
-- **Швидке завантаження** та відгук
-
 ## Очікувані результати
 
-1. **Функціональний сервер** з інтегрованими мідлварами та шаблонізаторами
-2. **Збереження сумісності** з існуючими тестами
-3. **HTML сторінки** з PUG (користувачі) та EJS (статті)
-4. **Сучасна CSS стилізація** з responsive дизайном
-5. **Комплексне тестування** як API, так і HTML функціональності
-6. **Детальна документація** всіх можливостей
+1. **🔄 Модифікований сервер** - існуючий сервер розширений шаблонізаторами
+2. **✅ Збереження API** - всі 23 існуючі тести проходять
+3. **🆕 HTML сторінки** - красиві шаблони з PUG та EJS
+4. **🎨 Сучасний дизайн** - CSS3 з градієнтами та анімаціями
+5. **🧪 Розширене тестування** - +15 тестів для шаблонізаторів
+6. **📚 Оновлена документація** - README з прикладами використання
 
-Цей підхід демонструє розуміння принципів мідлварів у Express.js, роботи з різними шаблонізаторами, важливості зворотної сумісності та створення сучасних веб-додатків з якісним UX/UI дизайном.
+## Ключові принципи
+
+### ✅ Зворотна сумісність
+
+- **Всі існуючі тести проходять**
+- **API працює як раніше**
+- **JSON за замовчуванням**
+
+### 🆕 Нова функціональність
+
+- **HTML сторінки через шаблонізатори**
+- **Умовне рендерування за Accept заголовком**
+- **Сучасний responsive дизайн**
+
+### 🏗️ Розширюваність
+
+- **Легке додавання нових шаблонізаторів**
+- **Модульна структура views**
+- **Гнучка конфігурація рендерингу**
+
+---
+
+**Результат**: Існуючий Express сервер з мідлварами тепер підтримує як API, так і красиві HTML сторінки з різними шаблонізаторами, демонструючи повне розуміння full-stack веб-розробки.
