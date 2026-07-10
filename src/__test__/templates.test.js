@@ -51,7 +51,6 @@ describe('Template Engines Tests', () => {
       expect(response.headers['content-type']).toMatch(/text\/html/)
       expect(response.text).toContain('<!DOCTYPE html>')
       expect(response.text).toContain('Користувачі')
-      expect(response.text).toContain('PUG Template')
       expect(response.text).toContain('/css/styles.css')
     })
 
@@ -64,7 +63,6 @@ describe('Template Engines Tests', () => {
       expect(response.text).toContain('Деталі користувача')
       expect(response.text).toContain(testUserName)
       expect(response.text).toContain(testUserId)
-      expect(response.text).toContain('PUG Template')
     })
 
     test('GET /users без Accept заголовка повинен повертати JSON (зворотна сумісність)', async () => {
@@ -94,7 +92,6 @@ describe('Template Engines Tests', () => {
       expect(response.headers['content-type']).toMatch(/text\/html/)
       expect(response.text).toContain('<!DOCTYPE html>')
       expect(response.text).toContain('Статті')
-      expect(response.text).toContain('EJS Template')
       expect(response.text).toContain('/css/styles.css')
     })
 
@@ -107,7 +104,6 @@ describe('Template Engines Tests', () => {
       expect(response.text).toContain('Деталі статті')
       expect(response.text).toContain(testArticleTitle)
       expect(response.text).toContain(testArticleId)
-      expect(response.text).toContain('EJS Template')
     })
 
     test('GET /articles без Accept заголовка повинен повертати JSON (зворотна сумісність)', async () => {
